@@ -1,2 +1,2 @@
 # Kabsview
-A free to use Digital design based to assis low income business to develop visually
+A free to use Digital signage based to assis low income business to develop visually
