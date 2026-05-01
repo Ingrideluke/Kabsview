@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Display · Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cr:#f5f0e8;--cr2:#ede8dc;--cr3:#e0d9cc;
+  --ink:#1a1610;--ink2:#3d3628;--ink3:#6b6050;
+  --rust:#c4521a;--teal:#1a6b6b;--gold:#b8960a;
+  --card:#faf7f0;--sh:rgba(26,22,16,.12);--r:10px;
+  --fd:'Playfair Display',serif;--fb:'Instrument Sans',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+body{background:var(--cr);color:var(--ink);font-family:var(--fb);min-height:100vh}
+header{background:var(--ink);color:var(--cr);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:60px;border-bottom:3px solid var(--rust)}
+.logo{font-family:var(--fd);font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:10px}
+.ldot{width:9px;height:9px;border-radius:50%;background:var(--rust);box-shadow:0 0 8px var(--rust);animation:br 3s ease-in-out infinite}
+@keyframes br{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+.hright{display:flex;align-items:center;gap:14px}
+.keybadge{font-family:var(--fm);font-size:10px;color:var(--ink2);background:var(--cr2);padding:4px 12px;border-radius:20px;display:flex;align-items:center;gap:6px}
+.keybadge strong{color:var(--rust);font-size:14px;letter-spacing:.1em}
+#cst{display:flex;align-items:center;gap:6px;font-family:var(--fm);font-size:10px;color:rgba(245,240,232,.45)}
+.cdot{width:7px;height:7px;border-radius:50%;background:#555;transition:background .3s}
+.cdot.live{background:#4ade80;box-shadow:0 0 6px #4ade80;animation:br 2s infinite}
+
+.wrap{max-width:1160px;margin:0 auto;padding:28px 32px;display:grid;grid-template-columns:1fr 340px;gap:28px;align-items:start}
+.sec{font-family:var(--fd);font-size:1.2rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.sec::after{content:'';flex:1;height:1px;background:var(--cr3);margin-left:8px}
+.card{background:var(--card);border:1px solid var(--cr3);border-radius:var(--r);box-shadow:0 2px 10px var(--sh);padding:20px;margin-bottom:20px}
+
+.tabs{display:flex;border-bottom:2px solid var(--cr3);margin-bottom:20px}
+.tab{padding:7px 18px;font-size:13px;font-weight:600;color:var(--ink3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s}
+.tab.on{color:var(--rust);border-bottom-color:var(--rust)}
+.tp{display:none}.tp.on{display:block}
+
+.fr{margin-bottom:14px}.fr2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+label{display:block;font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
+input,select,textarea{width:100%;background:var(--cr);border:1.5px solid var(--cr3);border-radius:7px;color:var(--ink);font-family:var(--fb);font-size:13px;padding:8px 11px;outline:none;transition:border-color .2s;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--rust);background:#fff}
+textarea{resize:vertical;min-height:64px}
+
+.bgs{display:flex;gap:7px;flex-wrap:wrap}
+.bsw{width:34px;height:34px;border-radius:7px;cursor:pointer;border:3px solid transparent;transition:all .15s;position:relative}
+.bsw.on{border-color:var(--rust);transform:scale(1.1)}
+.bsw::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:rgba(255,255,255,.9);opacity:0}
+.bsw.on::after{opacity:1}
+.sp{display:flex;gap:7px}
+.sb{padding:6px 13px;border-radius:6px;border:1.5px solid var(--cr3);background:var(--cr);color:var(--ink2);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.sb.on{background:var(--rust);border-color:var(--rust);color:#fff}
+
+.addbtn{width:100%;padding:11px;background:var(--ink);color:var(--cr);border:none;border-radius:8px;font-family:var(--fd);font-size:.95rem;font-weight:700;cursor:pointer;transition:background .2s;margin-top:4px}
+.addbtn:hover{background:var(--rust)}
+
+.plist{display:flex;flex-direction:column;gap:7px;min-height:50px}
+.pi{display:flex;align-items:center;gap:10px;background:var(--cr);border:1.5px solid var(--cr3);border-radius:8px;padding:10px 13px;cursor:grab;transition:border-color .2s}
+.pi:hover{border-color:#c4521a55}
+.pnum{font-family:var(--fm);font-size:10px;color:var(--ink3);width:16px;text-align:center;flex-shrink:0}
+.pthumb{width:56px;height:34px;border-radius:5px;background:var(--cr2);border:1px solid var(--cr3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.pthumb img{width:100%;height:100%;object-fit:cover}
+.pinfo{flex:1;min-width:0}
+.pname{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pmeta{font-family:var(--fm);font-size:10px;color:var(--ink3);margin-top:2px;display:flex;align-items:center;gap:5px}
+.pill{font-family:var(--fm);font-size:9px;padding:2px 6px;border-radius:20px;text-transform:uppercase}
+.pt{background:rgba(196,82,26,.12);color:var(--rust)}
+.pi2{background:rgba(26,107,107,.12);color:var(--teal)}
+.pu{background:rgba(184,150,10,.12);color:var(--gold)}
+.pv{background:rgba(26,22,16,.1);color:var(--ink2)}
+.pc{background:rgba(90,173,168,.15);color:#5aada8}
+.pacts{display:flex;gap:3px}
+.pb{width:26px;height:26px;border-radius:5px;border:1px solid var(--cr3);background:transparent;color:var(--ink3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s}
+.pb:hover{border-color:var(--rust);color:var(--rust)}
+.pb.d:hover{border-color:#c00;color:#c00}
+.pempty{border:2px dashed var(--cr3);border-radius:8px;padding:36px;text-align:center;color:var(--ink3);font-size:13px}
+
+.scard{background:var(--card);border:1px solid var(--cr3);border-radius:var(--r);box-shadow:0 2px 10px var(--sh);padding:20px;margin-bottom:18px}
+.stitle{font-family:var(--fd);font-size:1rem;font-weight:700;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--cr3)}
+#pvbox{background:#000;border-radius:8px;aspect-ratio:16/9;overflow:hidden;position:relative;margin-bottom:14px}
+#pvcon{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:14px}
+.pvhl{font-family:'Playfair Display',serif;font-size:clamp(.75rem,3vw,1.3rem);font-weight:900;color:#fff;text-align:center;line-height:1.2}
+.pvsub{font-size:.65rem;color:rgba(255,255,255,.6);text-align:center;margin-top:5px}
+
+.crow{display:flex;gap:7px;margin-bottom:10px}
+.cbtn{flex:1;padding:9px;border-radius:7px;border:1.5px solid var(--cr3);background:var(--cr);color:var(--ink2);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:4px}
+.cbtn:hover{border-color:var(--ink);background:var(--ink);color:var(--cr)}
+.cbtn.push{background:var(--rust);border-color:var(--rust);color:#fff}
+.cbtn.push:hover{opacity:.85}
+
+.trow{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--cr2)}
+.trow:last-child{border-bottom:none}
+.tlbl{font-size:13px;color:var(--ink2);font-weight:500}
+.tog{width:36px;height:20px;background:var(--cr3);border-radius:10px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.tog.on{background:var(--teal)}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.tog.on::after{transform:translateX(16px)}
+
+.chsetup{background:var(--cr);border:1.5px solid var(--cr3);border-radius:8px;padding:12px;margin-bottom:12px}
+.chkey{font-family:var(--fm);font-size:1.8rem;font-weight:500;color:var(--rust);letter-spacing:.2em;text-align:center;padding:6px 0}
+.brow{display:flex;gap:7px;flex-wrap:wrap}
+.bsm{padding:6px 12px;border-radius:6px;border:1.5px solid var(--cr3);background:var(--cr);color:var(--ink2);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;font-family:var(--fm)}
+.bsm:hover{background:var(--ink);color:var(--cr);border-color:var(--ink)}
+.dcount{font-family:var(--fm);font-size:11px;color:var(--ink3);text-align:center;margin-top:8px}
+.dcount strong{color:var(--teal)}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--ink);color:var(--cr);padding:10px 22px;border-radius:30px;font-family:var(--fm);font-size:12px;opacity:0;transition:all .3s;z-index:9000;border:1px solid var(--rust);white-space:nowrap}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--cr3);border-radius:2px}
+@media(max-width:860px){.wrap{grid-template-columns:1fr}header{padding:0 16px}.wrap{padding:16px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><div class="ldot"></div>Home Display</div>
+  <div class="hright">
+    <div class="keybadge">Channel: <strong id="hkey">—</strong></div>
+    <div id="cst"><div class="cdot" id="cdot"></div><span id="clbl">Connecting…</span></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div>
+    <div class="sec">Add Slide</div>
+    <div class="card">
+      <div class="tabs">
+        <div class="tab on" onclick="stab('text',this)">✦ Text</div>
+        <div class="tab" onclick="stab('image',this)">🖼 Image</div>
+        <div class="tab" onclick="stab('video',this)">▶ Video</div>
+        <div class="tab" onclick="stab('url',this)">🌐 Web</div>
+        <div class="tab" onclick="stab('clock',this)">◷ Clock</div>
+      </div>
+
+      <div class="tp on" id="tab-text">
+        <div class="fr"><label>Headline</label><input id="th" placeholder="Good morning!" maxlength="80" oninput="lprev()"></div>
+        <div class="fr"><label>Subtext</label><textarea id="ts" placeholder="A warm welcome, quote…" maxlength="160" oninput="lprev()"></textarea></div>
+        <div class="fr"><label>Background</label>
+          <div class="bgs" id="bgp">
+            <div class="bsw on" style="background:linear-gradient(135deg,#1a1610,#2d2318)" data-bg="night" onclick="sbg(this)"></div>
+            <div class="bsw" style="background:linear-gradient(135deg,#0d2b2b,#1a4a3a)" data-bg="forest" onclick="sbg(this)"></div>
+            <div class="bsw" style="background:linear-gradient(135deg,#2b1a0d,#4a2a1a)" data-bg="amber" onclick="sbg(this)"></div>
+            <div class="bsw" style="background:linear-gradient(135deg,#0d1a2b,#1a2a4a)" data-bg="ocean" onclick="sbg(this)"></div>
+            <div class="bsw" style="background:linear-gradient(135deg,#2b0d1a,#4a1a2a)" data-bg="wine" onclick="sbg(this)"></div>
+            <div class="bsw" style="background:linear-gradient(135deg,#f5f0e8,#ede0cc)" data-bg="paper" onclick="sbg(this)"></div>
+          </div>
+        </div>
+        <div class="fr"><label>Font Style</label>
+          <div class="sp">
+            <button class="sb on" data-style="serif" onclick="sst(this)">Serif</button>
+            <button class="sb" data-style="sans" onclick="sst(this)">Sans</button>
+            <button class="sb" data-style="mono" onclick="sst(this)">Mono</button>
+          </div>
+        </div>
+        <div class="fr2">
+          <div><label>Duration (s)</label><input type="number" id="td" value="10" min="2" max="300"></div>
+          <div><label>Align</label><select id="ta"><option value="center">Center</option><option value="left">Left</option><option value="right">Right</option></select></div>
+        </div>
+        <button class="addbtn" onclick="add('text')">+ Add Text Slide</button>
+      </div>
+
+      <div class="tp" id="tab-image">
+        <div class="fr"><label>Image URL</label><input type="url" id="iu" placeholder="https://images.unsplash.com/…"></div>
+        <div class="fr"><label>Caption (optional)</label><input id="ic" placeholder="A beautiful morning…"></div>
+        <div class="fr2">
+          <div><label>Duration (s)</label><input type="number" id="id" value="10" min="2" max="300"></div>
+          <div><label>Fit</label><select id="if"><option value="cover">Fill</option><option value="contain">Fit</option></select></div>
+        </div>
+        <div class="fr"><label>Ken Burns zoom</label><div class="sp"><button class="sb on" data-val="true" onclick="p1(this)">On</button><button class="sb" data-val="false" onclick="p1(this)">Off</button></div></div>
+        <button class="addbtn" onclick="add('image')">+ Add Image Slide</button>
+      </div>
+
+      <div class="tp" id="tab-video">
+        <div class="fr"><label>YouTube embed URL or .mp4 link</label><input type="url" id="vu" placeholder="https://www.youtube.com/embed/…"></div>
+        <div class="fr"><label>Label</label><input id="vl" placeholder="Family Video · Summer 2024"></div>
+        <div class="fr2">
+          <div><label>Duration (s, 0=full)</label><input type="number" id="vd" value="0" min="0"></div>
+          <div><label>Options</label><div class="sp" style="margin-top:6px"><button class="sb on" id="vm" onclick="this.classList.toggle('on')">Mute</button><button class="sb on" id="vll" onclick="this.classList.toggle('on')">Loop</button></div></div>
+        </div>
+        <button class="addbtn" onclick="add('video')">+ Add Video Slide</button>
+      </div>
+
+      <div class="tp" id="tab-url">
+        <div class="fr"><label>Webpage URL</label><input type="url" id="uu" placeholder="https://calendar.google.com/…"></div>
+        <div class="fr"><label>Label</label><input id="ul" placeholder="My Calendar"></div>
+        <div class="fr"><label>Duration (s)</label><input type="number" id="ud" value="20" min="5"></div>
+        <button class="addbtn" onclick="add('url')">+ Add Web Slide</button>
+      </div>
+
+      <div class="tp" id="tab-clock">
+        <div class="fr"><label>Widget</label><select id="cw"><option value="clock">Clock only</option><option value="weather">Weather only</option><option value="both">Clock + Weather</option></select></div>
+        <div class="fr"><label>City (for weather)</label><input id="cc" placeholder="London, New York, Tokyo…"></div>
+        <div class="fr"><label>Unit</label><div class="sp"><button class="sb on" data-val="C" onclick="p1(this)">°C</button><button class="sb" data-val="F" onclick="p1(this)">°F</button></div></div>
+        <div class="fr"><label>Duration (s)</label><input type="number" id="cwv" value="15" min="5"></div>
+        <button class="addbtn" onclick="add('clock')">+ Add Clock/Weather</button>
+      </div>
+    </div>
+
+    <div class="sec">Playlist</div>
+    <div class="card" style="padding:14px">
+      <div class="plist" id="pl"><div class="pempty">No slides yet — add some above ↑</div></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="scard">
+      <div class="stitle">Live Preview</div>
+      <div id="pvbox"><div id="pvcon"><span style="font-family:monospace;font-size:11px;color:rgba(255,255,255,.3)">preview</span></div></div>
+      <button class="cbtn push" style="width:100%;margin-bottom:10px" onclick="push()">↑ Push to Display</button>
+      <div class="crow">
+        <button class="cbtn" onclick="cmd('pause')">⏸ Pause</button>
+        <button class="cbtn" onclick="cmd('resume')">▶ Resume</button>
+        <button class="cbtn" onclick="cmd('next')">⏭ Next</button>
+      </div>
+    </div>
+
+    <div class="scard">
+      <div class="stitle">Channel</div>
+      <div class="chsetup"><div class="chkey" id="chk">——————</div></div>
+      <div class="brow">
+        <button class="bsm" onclick="copyKey()">Copy Key</button>
+        <button class="bsm" onclick="copyUrl()">Copy Display URL</button>
+        <button class="bsm" onclick="newKey()">New Key</button>
+      </div>
+      <div class="dcount" id="dc"></div>
+    </div>
+
+    <div class="scard">
+      <div class="stitle">Display Options</div>
+      <div class="trow"><div class="tlbl">Loop playlist</div><div class="tog on" id="tl" onclick="this.classList.toggle('on');ss()"></div></div>
+      <div class="trow"><div class="tlbl">Clock overlay</div><div class="tog on" id="tc" onclick="this.classList.toggle('on');ss()"></div></div>
+      <div class="trow"><div class="tlbl">Date overlay</div><div class="tog on" id="tdate" onclick="this.classList.toggle('on');ss()"></div></div>
+      <div class="trow"><div class="tlbl">Ticker bar</div><div class="tog" id="tt" onclick="this.classList.toggle('on');ss()"></div></div>
+      <div style="margin-top:12px"><label>Ticker message</label><input id="tm" placeholder="Welcome home! · Reminders…" oninput="ss()"></div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:10px"><span class="tlbl">Transition</span><select id="tr" style="width:auto" onchange="ss()"><option value="fade">Fade</option><option value="slide">Slide</option><option value="zoom">Zoom</option><option value="none">None</option></select></div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const FM={serif:"'Playfair Display',serif",sans:"'Instrument Sans',sans-serif",mono:"'JetBrains Mono',monospace"};
+const BG={night:'linear-gradient(135deg,#1a1610,#2d2318)',forest:'linear-gradient(135deg,#0d2b2b,#1a4a3a)',amber:'linear-gradient(135deg,#2b1a0d,#4a2a1a)',ocean:'linear-gradient(135deg,#0d1a2b,#1a2a4a)',wine:'linear-gradient(135deg,#2b0d1a,#4a1a2a)',paper:'linear-gradient(135deg,#f5f0e8,#ede0cc)'};
+let slides=[],settings={loop:true,clock:true,date:true,ticker:false,tickerMsg:'',transition:'fade'};
+let key='',ws=null,bg='night',style='serif',dsrc=null;
+
+async function init(){
+  let k=localStorage.getItem('hd_admin_key');
+  if(!k){const r=await fetch('/api/channel',{method:'POST'});const d=await r.json();k=d.key;localStorage.setItem('hd_admin_key',k);}
+  key=k;
+  document.getElementById('chk').textContent=k;
+  document.getElementById('hkey').textContent=k;
+  wsConn();
+}
+
+function wsConn(){
+  const proto=location.protocol==='https:'?'wss':'ws';
+  ws=new WebSocket(`${proto}://${location.host}`);
+  ws.onopen=()=>{
+    ws.send(JSON.stringify({type:'join',key,role:'admin'}));
+    document.getElementById('cdot').classList.add('live');
+    document.getElementById('clbl').textContent='Connected';
+  };
+  ws.onmessage=({data})=>{
+    const m=JSON.parse(data);
+    if(m.type==='state'||m.type==='load'){slides=m.slides||[];settings=m.settings||settings;applyUI();rpl();}
+    if(m.type==='presence'){const n=m.displays||0;document.getElementById('dc').innerHTML=n?`<strong>${n}</strong> display${n>1?'s':''} connected`:'No displays connected';}
+  };
+  ws.onclose=()=>{document.getElementById('cdot').classList.remove('live');document.getElementById('clbl').textContent='Reconnecting…';setTimeout(wsConn,3000);};
+  ws.onerror=()=>ws.close();
+}
+
+function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o));}
+function push(){send({type:'push',key,slides,settings});toast('Pushed to display ↑');}
+function cmd(c){send({type:'cmd',key,cmd:c});toast('Sent: '+c);}
+
+function stab(n,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.tp').forEach(p=>p.classList.remove('on'));el.classList.add('on');document.getElementById('tab-'+n).classList.add('on');}
+function sbg(el){document.querySelectorAll('.bsw').forEach(s=>s.classList.remove('on'));el.classList.add('on');bg=el.dataset.bg;lprev();}
+function sst(el){el.parentNode.querySelectorAll('.sb').forEach(b=>b.classList.remove('on'));el.classList.add('on');style=el.dataset.style;lprev();}
+function p1(el){el.parentNode.querySelectorAll('.sb').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+
+function lprev(){
+  const h=document.getElementById('th').value,s=document.getElementById('ts').value;
+  const box=document.getElementById('pvcon');const p=bg==='paper';
+  box.style.background=BG[bg];
+  box.innerHTML=`<div class="pvhl" style="font-family:${FM[style]};color:${p?'#1a1610':'#fff'}">${esc(h)||'Your headline'}</div>${s?`<div class="pvsub">${esc(s)}</div>`:''}`;
+}
+
+function pvSlide(s){
+  const box=document.getElementById('pvcon');
+  if(s.type==='text'){const p=s.bg==='paper';box.style.background=BG[s.bg]||BG.night;box.innerHTML=`<div class="pvhl" style="font-family:${FM[s.style||'serif']};color:${p?'#1a1610':'#fff'}">${esc(s.headline)}</div>${s.subtext?`<div class="pvsub">${esc(s.subtext)}</div>`:''}`;}
+  else if(s.type==='image'){box.style.background='#000';box.innerHTML=`<img src="${s.url}" style="width:100%;height:100%;object-fit:${s.fit||'cover'};position:absolute;inset:0">`;}
+  else{box.style.background='#111';box.innerHTML=`<span style="font-family:monospace;font-size:11px;color:rgba(255,255,255,.4)">${esc(s.label||s.headline||s.type)}</span>`;}
+}
+
+function add(type){
+  let s={type,id:Date.now()};
+  if(type==='text'){const h=document.getElementById('th').value.trim();if(!h){toast('Enter a headline');return;}s.headline=h;s.subtext=document.getElementById('ts').value.trim();s.bg=bg;s.style=style;s.align=document.getElementById('ta').value;s.duration=+document.getElementById('td').value||10;}
+  else if(type==='image'){const u=document.getElementById('iu').value.trim();if(!u){toast('Enter image URL');return;}s.url=u;s.caption=document.getElementById('ic').value.trim();s.fit=document.getElementById('if').value;s.kenburns=document.querySelector('#tab-image .sb.on')?.dataset.val==='true';s.duration=+document.getElementById('id').value||10;}
+  else if(type==='video'){const u=document.getElementById('vu').value.trim();if(!u){toast('Enter video URL');return;}s.url=u;s.label=document.getElementById('vl').value.trim()||'Video';s.muted=document.getElementById('vm').classList.contains('on');s.loop=document.getElementById('vll').classList.contains('on');s.duration=+document.getElementById('vd').value||0;}
+  else if(type==='url'){let u=document.getElementById('uu').value.trim();if(!u){toast('Enter URL');return;}if(!u.startsWith('http'))u='https://'+u;s.url=u;s.label=document.getElementById('ul').value.trim()||u;s.duration=+document.getElementById('ud').value||20;}
+  else if(type==='clock'){s.widget=document.getElementById('cw').value;s.city=document.getElementById('cc').value.trim();s.unit=document.querySelector('#tab-clock .sb.on')?.dataset.val||'C';s.duration=+document.getElementById('cwv').value||15;s.label='Clock'+(s.city?' · '+s.city:'');}
+  slides.push(s);rpl();pvSlide(s);toast('Added ✓');
+}
+
+function del(i){if(!confirm('Delete?'))return;slides.splice(i,1);rpl();toast('Deleted');}
+function mv(i,d){const j=i+d;if(j<0||j>=slides.length)return;[slides[i],slides[j]]=[slides[j],slides[i]];rpl();}
+
+function rpl(){
+  const el=document.getElementById('pl');
+  if(!slides.length){el.innerHTML='<div class="pempty">No slides yet — add some above ↑</div>';return;}
+  el.innerHTML=slides.map((s,i)=>{
+    const nm=s.headline||s.label||s.url||s.type;
+    const th=s.type==='image'?`<img src="${s.url}" onerror="this.style.display='none'">`:{text:'✦',video:'▶',clock:'◷',url:'🌐'}[s.type]||'?';
+    const cl={text:'pt',image:'pi2',video:'pv',url:'pu',clock:'pc'}[s.type]||'pt';
+    return `<div class="pi" draggable="true" ondragstart="dsrc=${i}" ondragover="event.preventDefault()" ondrop="drop(event,${i})" onclick="pvSlide(slides[${i}])">
+      <div class="pnum">${i+1}</div><div class="pthumb">${th}</div>
+      <div class="pinfo"><div class="pname">${esc(nm)}</div><div class="pmeta">${s.duration||'auto'}s &nbsp;<span class="pill ${cl}">${s.type}</span></div></div>
+      <div class="pacts">
+        <button class="pb" onclick="event.stopPropagation();mv(${i},-1)">↑</button>
+        <button class="pb" onclick="event.stopPropagation();mv(${i},1)">↓</button>
+        <button class="pb d" onclick="event.stopPropagation();del(${i})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function drop(e,i){e.preventDefault();if(dsrc===null||dsrc===i)return;const m=slides.splice(dsrc,1)[0];slides.splice(i,0,m);dsrc=null;rpl();}
+
+function applyUI(){
+  document.getElementById('tl').classList.toggle('on',settings.loop);
+  document.getElementById('tc').classList.toggle('on',settings.clock);
+  document.getElementById('tdate').classList.toggle('on',settings.date);
+  document.getElementById('tt').classList.toggle('on',settings.ticker);
+  document.getElementById('tm').value=settings.tickerMsg||'';
+  document.getElementById('tr').value=settings.transition||'fade';
+}
+
+function ss(){
+  settings.loop=document.getElementById('tl').classList.contains('on');
+  settings.clock=document.getElementById('tc').classList.contains('on');
+  settings.date=document.getElementById('tdate').classList.contains('on');
+  settings.ticker=document.getElementById('tt').classList.contains('on');
+  settings.tickerMsg=document.getElementById('tm').value;
+  settings.transition=document.getElementById('tr').value;
+}
+
+function copyKey(){navigator.clipboard.writeText(key).then(()=>toast('Key copied!'));}
+function copyUrl(){navigator.clipboard.writeText(`${location.origin}/display?key=${key}`).then(()=>toast('Display URL copied!'));}
+function newKey(){if(!confirm('Generate new key? Display will need to reconnect.'))return;localStorage.removeItem('hd_admin_key');init();}
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2600);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+init();
+</script>
+</body>
+</html>
